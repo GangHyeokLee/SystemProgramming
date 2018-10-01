@@ -10,7 +10,7 @@
 
 void do_ls(char*, char*);
 void oops(char*, char*);
-void cp1(char*, char*);
+void cp1(char*,char*, char*);
 
 void main(int ac, char *av[])
 {
@@ -39,31 +39,59 @@ void do_ls(char * sourcename, char * destinationname)
 	else
 	{
 		while((direntp = readdir(dir_ptr))!=NULL)
-			cp1(direntp->d_name, destinationname);
+                        if(strcmp(direntp->d_name, ".") && strcmp(direntp->d_name, ".."))
+			cp1(sourcename, direntp->d_name, destinationname);
 		closedir(dir_ptr);
 	}
 
 }
  
-void cp1(char *filename, char * destinationname)
+void cp1(char *sourcename, char *filename, char * destinationname)
 {
         int     in_fd, out_fd, n_chars;
-        char    buf[BUFFERSIZE], destination[BUFFERSIZE] = {0};
+        char    buf[BUFFERSIZE], destination[BUFFERSIZE]={0}, sourcenamef[BUFFERSIZE]={0};
 
-	strcpy(destination, "~/");
-	printf("%s\n",destination);
-	strcat(destination, destinationname);
-	printf("%s\n", destination);
- 
-        if ( (in_fd=open(filename, O_RDONLY)) == -1 )
+        strcpy(destination, destinationname);
+	strcpy(sourcenamef, sourcename);
+        strcat(sourcenamef, "/");
+        strcat(sourcenamef, filename);
+
+        printf("%s\n", sourcenamef);
+
+        printf("%s will be opened\n", filename);
+
+        if ( (in_fd=open(sourcenamef, O_RDONLY)) == -1 )
             oops("Error while opening ", filename);
-       
-        if  (out_fd=creat(destination, COPYMODE) == -1 )
+
+        printf("%s opened, %d\n",filename, in_fd);
+
+        strcat(destination, "/");
+       strcat(destination, filename);
+
+       printf("destination is %s\n", destination);
+
+
+        if  ((out_fd=creat(destination,COPYMODE)) == -1 )
             oops("Error while creat", destination);
- 
-        while ( (n_chars = read(in_fd, buf, BUFFERSIZE)) > 0 )
+                
+        printf("file created, %d\n", out_fd);
+
+        while (1 )
+        {
+                n_chars = read(in_fd, buf, BUFFERSIZE);
+                if(n_chars == 0 )
+                {
+                        break;
+                }
+                if(n_chars == -1)
+                {
+                        oops("Read error from ", sourcename);
+                }
+        
             if ( write( out_fd, buf, n_chars ) != n_chars )
                     oops("Write error to ", destination);
+        }
+        printf("done %s\n",filename);
         if ( n_chars == -1 )
                     oops("Read error from ", filename);
  
