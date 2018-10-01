@@ -1,74 +1,76 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <dirent.h>
-#include    <unistd.h>
-#include    <fcntl.h>
-#include    <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <stdlib.h>
+#include <string.h>
 #define BUFFERSIZE      4096
 #define COPYMODE        0644    
 
-void do_ls(char[]);
+void do_ls(char*, char*);
+void oops(char*, char*);
+void cp1(char*, char*);
 
-int main(int ac, char *av[])
+void main(int ac, char *av[])
 {
-	if(ac==1)
-		do_ls( "." );
-	else
-		while(--ac){
-			printf("%s:\n", *++av);
-			do_ls( *av);
-		}
+	if(ac < 3)
+	{
+		fprintf(stderr, "usage : %s source destination\n", *av);
+		exit(1);
+	}
+
+	do_ls(av[1], av[2]);
+
+
 }
 
-void do_ls(char dirname[])
+void do_ls(char * sourcename, char * destinationname)
 /*
  *		list files in directory called dirname
  */
 {
 	DIR			 *dir_ptr;			/* the directory */
-	struct dirent *direntp;			/* each entry	 */
+	struct dirent *direntp;					/* each entry	 */
 
 
-	if((dir_ptr = opendir(dirname))==NULL)
-		fprintf(stderr, "ls1: cannot open %s\n", dirname);
+	if((dir_ptr = opendir(sourcename))==NULL)
+		fprintf(stderr, "ls1: cannot open %s\n", sourcename);
 	else
 	{
 		while((direntp = readdir(dir_ptr))!=NULL)
-			printf("%s\n", direntp->d_name);
+			cp1(direntp->d_name, destinationname);
 		closedir(dir_ptr);
 	}
 
 }
-
-/*cp1.c
- *		version 1 of cp - uses read and write with tunable buffer size
- *
- *		usage: cp1 src dest
- */
-
-void oops(char *, char *);
  
-int cp1(char *, char *av[])
+void cp1(char *filename, char * destinationname)
 {
         int     in_fd, out_fd, n_chars;
-        char    buf[BUFFERSIZE];
+        char    buf[BUFFERSIZE], destination[BUFFERSIZE] = {0};
+
+	strcpy(destination, "~/");
+	printf("%s\n",destination);
+	strcat(destination, destinationname);
+	printf("%s\n", destination);
  
-        if ( (in_fd=open(av[1], O_RDONLY)) == -1 )
-            oops("Error while opening ", av[1]);
+        if ( (in_fd=open(filename, O_RDONLY)) == -1 )
+            oops("Error while opening ", filename);
        
-        if ( (out_fd=creat(av[2], COPYMODE)) == -1 )
-            oops("Error while creat", av[2]);
+        if  (out_fd=creat(destination, COPYMODE) == -1 )
+            oops("Error while creat", destination);
  
         while ( (n_chars = read(in_fd, buf, BUFFERSIZE)) > 0 )
             if ( write( out_fd, buf, n_chars ) != n_chars )
-                    oops("Write error to ", av[2]);
+                    oops("Write error to ", destination);
         if ( n_chars == -1 )
-                    oops("Read error from ", av[1]);
+                    oops("Read error from ", filename);
  
         if ( close(in_fd) == -1 || close(out_fd) == -1 )
             oops("Error closing files", "");
        
-        return 0;
+        return;
 }
  
 void oops(char *s1, char *s2)
