@@ -56,42 +56,21 @@ void cp1(char *sourcename, char *filename, char * destinationname)
         strcat(sourcenamef, "/");
         strcat(sourcenamef, filename);
 
-        printf("%s\n", sourcenamef);
-
-        printf("%s will be opened\n", filename);
-
         if ( (in_fd=open(sourcenamef, O_RDONLY)) == -1 )
             oops("Error while opening ", filename);
-
-        printf("%s opened, %d\n",filename, in_fd);
 
         strcat(destination, "/");
        strcat(destination, filename);
 
-       printf("destination is %s\n", destination);
-
-
         if  ((out_fd=creat(destination,COPYMODE)) == -1 )
             oops("Error while creat", destination);
-                
-        printf("file created, %d\n", out_fd);
 
-        while (1 )
+        while ((n_chars = read(in_fd, buf, BUFFERSIZE))>0 )
         {
-                n_chars = read(in_fd, buf, BUFFERSIZE);
-                if(n_chars == 0 )
-                {
-                        break;
-                }
-                if(n_chars == -1)
-                {
-                        oops("Read error from ", sourcename);
-                }
-        
             if ( write( out_fd, buf, n_chars ) != n_chars )
                     oops("Write error to ", destination);
         }
-        printf("done %s\n",filename);
+ 
         if ( n_chars == -1 )
                     oops("Read error from ", filename);
  
