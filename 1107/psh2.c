@@ -31,7 +31,7 @@ void main()
 			{
 				arglist[numargs] = NULL;
 				execute(arglist);
-				numargs = 0;
+				break;
 			}
 		}
 	}
@@ -54,7 +54,7 @@ void execute(char * arglist[])
 			exit(1);
 		default:
 			while(wait(&exitstatus)!=pid);
-			printf("child exitedwith status %d, %d\n", exitstatus>>8, exitstatus &0377);
+			printf("child exited with status %d, %d\n", exitstatus>>8, exitstatus &0377);
 	}
 }
 
