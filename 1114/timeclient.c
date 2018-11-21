@@ -18,6 +18,7 @@ void main(int argc, char *  argv[])
 	char message[BUFSIZ];
 	int messlen;
 
+	sock_id = socket(AF_INET, SOCK_STREAM, 0);
 	if(sock_id == -1)
 		oops( "socket");
 
@@ -26,6 +27,7 @@ void main(int argc, char *  argv[])
 	hp = gethostbyname(argv[1]);
 	if(hp == NULL)
 		oops(argv[1]);
+
 	bcopy(hp->h_addr, (struct sockaddr*)&servadd.sin_addr, hp->h_length);
 
 	servadd.sin_port = htons(atoi(argv[2]));

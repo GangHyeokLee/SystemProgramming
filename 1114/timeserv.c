@@ -8,7 +8,7 @@
 #include <time.h>
 #include <string.h>
 
-#define PORTNUM 13000
+#define PORTNUM 13785
 #define HOSTLEN 256
 #define oops(msg) {perror(msg); exit(1);}
 
@@ -48,6 +48,7 @@ void main(int argc, char * argv[])
 		if(sock_fd == -1)
 			oops("accept");
 
+		sock_fp = fdopen(sock_fd,"w");
 		if(sock_fp == NULL)
 			oops("fdopen");
 
