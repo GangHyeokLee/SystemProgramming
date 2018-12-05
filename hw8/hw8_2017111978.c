@@ -107,7 +107,10 @@ void main(int argc, char **argv)
         printf("Created Thread %d : %lld\n", i, data[i].start);
     }
 
-	sleep(10);
+	printf("Wait scheduler for 10s\n");
+	sleep(10); //스케줄러가 thread 다 만들 때까지 기다립니다.
+
+
     struct timeval start_time,end_time;
     gettimeofday(&start_time, NULL);
 	while(reports_in < nthreads)
@@ -116,7 +119,6 @@ void main(int argc, char **argv)
 	    pthread_cond_wait(&flag1, &lock);
 
         printf("MAIN : Wow! flag was raised, I have the lock\n");
-        printf("%lld: %lld\n", mail_box->counter, mail_box->start);
 	    total_words+=mail_box->counter;
 
 	    for(i = 0;i<nthreads;i++)
@@ -124,15 +126,12 @@ void main(int argc, char **argv)
 	        if(mail_box == &data[i]) //check certificated thread by starting point
             {
 	            pthread_join(threads[i], NULL);
-                printf("done %d %d\n\n",i, data[i].thread_id);
             }
         }
 
 	    mail_box = NULL;
-	    if(wait_count>0)
-	        pthread_cond_signal(&flag2);
+	    pthread_cond_signal(&flag2);
 	    reports_in++;
-        printf("reports_ in : %d\n\n", reports_in);
     }
 
     fclose(fp);
@@ -145,7 +144,7 @@ void main(int argc, char **argv)
 	double operating_time = (double)(end_time.tv_sec)+(double)(end_time.tv_usec)/1000000.0-(double)(start_time.tv_sec)-(double)(start_time.tv_usec)/1000000.0;
 
     /* print the total number of words in the file */
-    printf("[MAIN]Total Word Count: %d \n", total_words);
+    printf("\n\n[MAIN]Total Word Count: %d \n", total_words);
 	printf("[MAIN]Elapsed: %f seconds\n", (double)operating_time);
 
     return;
@@ -175,22 +174,14 @@ void *count_words(void *a)
     }
 
     pthread_mutex_lock(&lock);
-    count1++;
     printf("Thread start %d : have lock, storing data\n", data->thread_id);
 
 
     if(mail_box != NULL)
     {
         printf("Wait for other thread %d\n", data->thread_id);
-        wait_count++;
-
         pthread_cond_wait(&flag2, &lock);
-        wait_count--;
-        printf("wait: %d - data id : %d\n", wait_count, data->thread_id);
-
     }
-
-    printf("start %d %lld\n", data->thread_id, data->counter);
 
     mail_box = data;
 
@@ -199,8 +190,6 @@ void *count_words(void *a)
     printf("Thread start %d : unlocking box\n\n", data->thread_id);
     pthread_mutex_unlock(&lock);
     count2++;
-
-    printf("count1 : %d, count2 : %d\n", count1, count2);
 
     return NULL;
 }
