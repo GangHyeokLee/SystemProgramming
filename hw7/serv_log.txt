@@ -1,0 +1,20 @@
+GET /serv_log.txt HTTP/1.1
+
+GET /favicon.ico HTTP/1.1
+
+GET /serv_log.txt HTTP/1.1
+
+GET /favicon.ico HTTP/1.1
+
+GET /serv_log.txt HTTP/1.1
+
+GET /favicon.ico HTTP/1.1
+
+GET /serv_log.txt HTTP/1.1
+
+GET /favicon.ico HTTP/1.1
+
+GET /serv_log.txt HTTP/1.1
+
+GET /favicon.ico HTTP/1.1
+
